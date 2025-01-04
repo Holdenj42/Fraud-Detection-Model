@@ -1,0 +1,81 @@
+# Import libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, roc_auc_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+import webbrowser
+import os
+
+# File Path
+file_path = "/Users/holdenjahn/Downloads/creditcard.csv"
+
+# Load Dataset
+try:
+    data = pd.read_csv(file_path)
+    print("Dataset loaded successfully!")
+except FileNotFoundError:
+    print(f"File not found. Please check the path: {file_path}")
+    exit()
+
+# Explore Dataset
+print(data.head())
+print("Dataset Shape:", data.shape)
+print("Fraud Cases Distribution:\n", data['Class'].value_counts())
+print("Missing Values:\n", data.isnull().sum())
+
+# Visualize Fraud vs. Non-Fraud Cases
+plt.figure(figsize=(10, 6))
+sns.countplot(x='Class', data=data, palette="viridis")
+plt.title('Fraud vs. Non-Fraud Cases')
+plt.xlabel('Class')
+plt.ylabel('Count')
+plt.xticks([0, 1], ['Non-Fraud', 'Fraud'])
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()), 
+                       ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+plt.tight_layout()
+fraud_plot_path = "fraud_vs_nonfraud.png"
+plt.savefig(fraud_plot_path)  # Save the plot as an image
+plt.show()
+
+# Open the plot in a separate tab
+webbrowser.open('file://' + os.path.realpath(fraud_plot_path))
+
+# Preprocess Dataset
+X = data.drop(columns=['Class'])
+y = data['Class']
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train Model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Predict and Evaluate
+y_pred = model.predict(X_test)
+y_pred_prob = model.predict_proba(X_test)[:, 1]
+print(classification_report(y_test, y_pred))
+print("ROC AUC Score:", roc_auc_score(y_test, y_pred_prob))
+
+# Feature Importance
+feature_importances = pd.DataFrame(
+    {"Feature": X.columns, "Importance": model.feature_importances_}
+).sort_values(by="Importance", ascending=False)
+
+# Visualize Feature Importance
+plt.figure(figsize=(10, 6))
+sns.barplot(x="Importance", y="Feature", data=feature_importances, palette="viridis")
+plt.title("Feature Importance")
+plt.xlabel("Importance")
+plt.ylabel("Feature")
+plt.tight_layout()
+feature_importance_plot_path = "feature_importance.png"
+plt.savefig(feature_importance_plot_path)  # Save the plot as an image
+plt.show()
+
+# Open the feature importance plot in a separate tab
+webbrowser.open('file://' + os.path.realpath(feature_importance_plot_path))
