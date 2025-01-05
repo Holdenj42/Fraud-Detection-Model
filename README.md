@@ -11,7 +11,7 @@ This project builds a machine learning model to detect fraudulent transactions i
   - Feature importance ranking.
   - Decision tree structure to understand how the model makes predictions.
 - **Results**:
-- Achieved a balanced accuracy score, effectively detecting fraudulent transactions.
-- Demonstrated clear and interpretable decision paths for fraud detection.
+  - Achieved a balanced accuracy score, effectively detecting fraudulent transactions.
+  - Demonstrated clear and interpretable decision paths for fraud detection.
   
 This project demonstrates the effective use of machine learning to tackle real-world financial challenges, providing actionable insights through visualizations and metrics.
